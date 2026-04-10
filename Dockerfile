@@ -1,19 +1,38 @@
-# Use Node.js 18 or 20
-FROM node:20-slim
+# Build Stage
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
 # Copy the entire project
 COPY . .
 
-# Install dependencies for everything
+# Install dependencies for all parts
 RUN npm install
 RUN cd backend && npm install
 RUN cd mcp-servers/query-server && npm install
 RUN cd mcp-servers/modify-server && npm install
 
-# In Docker, we can safely use ts-node
+# Build the backend (compile TS to JS)
+WORKDIR /app/backend
+RUN npx tsc
+
+# Production Stage
+FROM node:20-slim
+
+WORKDIR /app
+
+# Copy compiled backend and all required dependencies
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/backend/package.json ./backend/package.json
+COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/backend/node_modules ./backend/node_modules
+COPY --from=builder /app/mcp-servers ./mcp-servers
+
+# Ensure MCP servers have their dependencies
+# They are already in the mcp-servers folders from the builder stage
+
 WORKDIR /app/backend
 EXPOSE 4000
 
-CMD ["npx", "ts-node", "src/index.ts"]
+# Run the compiled JavaScript using pure Node.js
+CMD ["node", "dist/index.js"]
