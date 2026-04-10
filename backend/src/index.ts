@@ -35,7 +35,7 @@ async function initMcp() {
     console.log("✅ Connected to MCP servers");
   } catch (error) {
     console.error("❌ Failed to connect to MCP servers:", error);
-    process.exit(1); // Exit if critical dependencies fail
+    process.exit(1);
   }
 }
 
@@ -49,9 +49,9 @@ app.post('/api/chat', async (req, res) => {
     const queryTools = await queryClient.listTools();
     const modifyTools = await modifyClient.listTools();
 
-    const allTools = [
+    const allTools: any[] = [
       ...queryTools.tools.map(t => ({
-        type: 'function' as const,
+        type: 'function',
         function: {
           name: `query_${t.name}`,
           description: t.description,
@@ -59,7 +59,7 @@ app.post('/api/chat', async (req, res) => {
         }
       })),
       ...modifyTools.tools.map(t => ({
-        type: 'function' as const,
+        type: 'function',
         function: {
           name: `modify_${t.name}`,
           description: t.description,
@@ -84,8 +84,7 @@ app.post('/api/chat', async (req, res) => {
 
       const message = response.choices[0]!.message;
 
-      // Clean the message object to remove extra fields that OpenAI SDK might add
-      const cleanMessage = {
+      const cleanMessage: any = {
         role: message.role,
         content: message.content || "",
         tool_calls: message.tool_calls
@@ -98,6 +97,8 @@ app.post('/api/chat', async (req, res) => {
       }
 
       for (const toolCall of message.tool_calls) {
+        if (toolCall.type !== 'function') continue;
+
         const fullMethodName = toolCall.function.name;
         const args = JSON.parse(toolCall.function.arguments);
         let result;
