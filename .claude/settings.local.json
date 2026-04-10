@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm start:*)",
+      "Bash(pkill -f ts-node-dev)",
+      "Bash(npm install:*)",
+      "Bash(curl:*)",
+      "Bash(ip addr:*)",
+      "Bash(adb reverse:*)"
+    ]
+  }
+}
