@@ -1,0 +1,11 @@
+{
+  "name": "project-mcp-fullstack",
+  "version": "1.0.0",
+  "description": "Fullstack MCP Vehicle Rental App",
+  "scripts": {
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ../mcp-servers/query-server && npm install && cd ../modify-server && npm install",
+    "start-backend": "cd backend && npm start",
+    "build-frontend": "cd frontend && npx expo export:web",
+    "start": "npm run start-backend"
+  }
+}
